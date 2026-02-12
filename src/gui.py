@@ -5,7 +5,7 @@ from tkinter import ttk
 from queue import Queue
 from requests import HTTPError
 
-from config import INDEX_URL
+from config import INDEX_URL, END_MESSAGE
 from core import index_utils
 from core.modpack_utils import ModpackUtils
 
@@ -29,10 +29,15 @@ class MainFrame(ttk.Frame):
 
         self.columnconfigure(0, weight=1)
         self.create_widgets()
+
         self.queue = Queue()
         self._checking_queue = False
         self._installing = False
         self.index = None
+
+        # По умолчанию стоит TLauncher, пока не появится больше лаунчеров и
+        # отдельный выбор в GUI
+        self.launcher_type = 'tl'
 
         threading.Thread(target=self._load_index, daemon=True).start()
 
@@ -87,7 +92,7 @@ class MainFrame(ttk.Frame):
         modpack_info = index_utils.modpack_query(self.index, selected)
         if modpack_info:
             modpack_utils = ModpackUtils(modpack_info, status_callback=self.queue.put)
-            modpack_utils.self_install()
+            modpack_utils.install_selected(self.launcher_type)
         else:
             self._set_status(f"Информация о сборке '{selected}' пуста")
 
@@ -98,7 +103,7 @@ class MainFrame(ttk.Frame):
         while not self.queue.empty():
             message = self.queue.get()
             self._set_status(message)
-            if message == 'Готово':
+            if message == END_MESSAGE:
                 self._checking_queue = False
                 self._installing = False
                 self.install_button.config(state='normal')
