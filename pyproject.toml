@@ -1,9 +1,9 @@
 [project]
 name = "modpack-installer"
 version = "0.1.0"
-description = "Add your description here"
+description = "A small installer for my Minecraft modpacks"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 dependencies = [
     "platformdirs>=4.6.0",
     "requests>=2.32.5",
