@@ -7,18 +7,36 @@ def get_index(url: str) -> dict[str, list[dict[str, str]]]:
     data: dict[str, list[dict[str, str]]] = tomli.loads(response.text)
     return data
 
-def get_modpacks_names(index: dict[str, list[dict[str, str]]] | None) -> list[str]:
+def get_modpacks_names(
+    index: dict[str, list[dict[str, str]]] | None,
+    with_versions: bool = False
+) -> list[str]:
+
     names: list[str] = []
     if index:
         modpacks: list[dict[str, str]] = index.get('modpacks', [])
         if modpacks:
             for modpack in modpacks:
-                name = modpack.get('name')
-                if name is not None:
-                    names.append(name)
+                name = modpack.get('name', '')
+                version = modpack.get('version', '')
+
+                if name:
+                    if with_versions and version:
+                        names.append(f"{name} - {version}")
+                    else:
+                        names.append(name)
     return names
 
-def modpack_query(index: dict[str, list[dict[str, str]]] | None, name: str) -> dict[str, str]:
+def modpack_query(
+    index: dict[str, list[dict[str, str]]] | None,
+    query: str
+) -> dict[str, str]:
+    # TODO: может можно сделать как-либо лучше
+    if ' - ' in query:
+        name = query.split(' - ')[0]
+    else:
+        name = query
+
     if index:
         modpacks: list[dict[str, str]] = index.get('modpacks', [])
         if modpacks:

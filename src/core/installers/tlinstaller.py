@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Callable
 from platformdirs import user_data_path
 
-from installers.installer import Installer
+from core.installers.installer import Installer
 
 class TlInstaller(Installer):
     def __init__(

@@ -14,7 +14,7 @@ class App(tk.Tk):
         super().__init__()
 
         self.title('Modpack Installer')
-        self.geometry('300x350')
+        self.geometry('320x370')
         self.resizable(False, False)
 
         self.columnconfigure(0, weight=1)
@@ -30,11 +30,10 @@ class MainFrame(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.create_widgets()
 
-        self.queue = Queue()
+        self.status_queue = Queue()
         self._checking_queue = False
         self._installing = False
         self.index = None
-
         # По умолчанию стоит TLauncher, пока не появится больше лаунчеров и
         # отдельный выбор в GUI
         self.launcher_type = 'tl'
@@ -51,7 +50,7 @@ class MainFrame(ttk.Frame):
 
     def _on_index_loaded(self, data):
         self.index = data
-        modpacks_names = index_utils.get_modpacks_names(self.index)
+        modpacks_names = index_utils.get_modpacks_names(self.index, with_versions=True)
         if modpacks_names:
             self._set_status('Индекс успешно загружен. Выберите сборку')
             self.modpack_combo['values'] = modpacks_names
@@ -91,8 +90,9 @@ class MainFrame(ttk.Frame):
         self._set_status(f"Получение информации о сборке '{selected}'")
         modpack_info = index_utils.modpack_query(self.index, selected)
         if modpack_info:
-            modpack_utils = ModpackUtils(modpack_info, status_callback=self.queue.put)
-            modpack_utils.install_selected(self.launcher_type)
+            modpack_utils = ModpackUtils(modpack_info, status_callback=self.status_queue.put)
+            # modpack_utils.install_selected(self.launcher_type)
+            modpack_utils.print_selected() # для проверок
         else:
             self._set_status(f"Информация о сборке '{selected}' пуста")
 
@@ -100,8 +100,8 @@ class MainFrame(ttk.Frame):
         if not self._checking_queue:
             return
 
-        while not self.queue.empty():
-            message = self.queue.get()
+        while not self.status_queue.empty():
+            message = self.status_queue.get()
             self._set_status(message)
             if message == END_MESSAGE:
                 self._checking_queue = False

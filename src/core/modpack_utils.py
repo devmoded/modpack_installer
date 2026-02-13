@@ -3,7 +3,6 @@ import zipfile
 import io
 import shutil
 import tempfile
-import time
 
 from typing import Callable
 from pathlib import Path
@@ -80,4 +79,9 @@ class ModpackUtils:
             launcher.install_modpack()
 
         self._cleanup()
+        self.status(END_MESSAGE)
+
+    # Для проверок функционала или дебага
+    def print_selected(self):
+        print(self.modpack_info)
         self.status(END_MESSAGE)
