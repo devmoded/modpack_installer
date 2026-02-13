@@ -90,8 +90,12 @@ class MainFrame(ttk.Frame):
         self._set_status(f"Получение информации о сборке '{selected}'")
         modpack_info = index_utils.modpack_query(self.index, selected)
         if modpack_info:
-            modpack_utils = ModpackUtils(modpack_info, status_callback=self.status_queue.put)
-            # modpack_utils.install_selected(self.launcher_type)
+            modpack_utils = ModpackUtils(
+                modpack_info,
+                status_callback=self.status_queue.put,
+                launcher_type=self.launcher_type
+            )
+            # modpack_utils.install_selected()
             modpack_utils.print_selected() # для проверок
         else:
             self._set_status(f"Информация о сборке '{selected}' пуста")

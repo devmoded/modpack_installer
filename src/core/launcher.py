@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Callable
 
+from core.locations import get_modpacks_location
 from core.installers.tlinstaller import TlInstaller
 
 class Launcher:
@@ -20,17 +21,25 @@ class Launcher:
         }
 
     def install_modpack(self):
-        installer_cls = self.installers.get(self.launcher_type)
-        if not installer_cls:
-            self.status('Ошибка: Неизвестный ID лаунчера')
-            return
+        try:
+            modpacks_location = get_modpacks_location(self.launcher_type)
+        except RuntimeError as e:
+            self.status(e)
+        else:
+            installer_cls = self.installers.get(self.launcher_type)
 
-        # TODO: Поработать над изменением на raise и последующую работу с логгером
-        if not self.modpack_content_path.exists():
-            self.status('Ошибка: Временный путь с содержимым сборки не существует!')
-            return
-        installer = installer_cls(
-            self.status, self.modpack_content_path,
-            self.modpack_name, self.modpack_mc_version, self.modpack_modloader
-        )
-        installer.install_modpack()
+            # TODO: Поработать над изменением на raise и последующую работу с логгером
+            if not installer_cls:
+                self.status('Ошибка: Неизвестный ID лаунчера')
+                return
+
+
+            # TODO: Поработать над изменением на raise и последующую работу с логгером
+            if not self.modpack_content_path.exists():
+                self.status('Ошибка: Временный путь с содержимым сборки не существует!')
+                return
+            installer = installer_cls(
+                self.status, self.modpack_content_path, modpacks_location,
+                self.modpack_name, self.modpack_mc_version, self.modpack_modloader
+            )
+            installer.install_modpack()

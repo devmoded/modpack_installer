@@ -1,6 +1,8 @@
 import requests
 import tomli
 
+NAME_SEPARATOR = ' - '
+
 def get_index(url: str) -> dict[str, list[dict[str, str]]]:
     response = requests.get(url)
     response.raise_for_status()
@@ -22,7 +24,7 @@ def get_modpacks_names(
 
                 if name:
                     if with_versions and version:
-                        names.append(f"{name} - {version}")
+                        names.append(f"{name}{NAME_SEPARATOR}{version}")
                     else:
                         names.append(name)
     return names
@@ -32,8 +34,8 @@ def modpack_query(
     query: str
 ) -> dict[str, str]:
     # TODO: может можно сделать как-либо лучше
-    if ' - ' in query:
-        name = query.split(' - ')[0]
+    if NAME_SEPARATOR in query:
+        name = query.split(NAME_SEPARATOR)[0]
     else:
         name = query
 
